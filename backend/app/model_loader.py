@@ -24,6 +24,42 @@ _metadata: Optional[Dict[str, Any]] = None
 def get_artifacts_dir() -> Path:
     return ARTIFACTS_DIR
 
+def _patch_transformer_compatibility(transformer: Any) -> None:
+    """
+    Ensure cross-version compatibility for scikit-learn transformers.
+    Fixes 'SimpleImputer' object has no attribute '_fill_dtype' or '_fit_dtype'
+    which occurs when unpickling across different scikit-learn versions in deployment.
+    """
+    if transformer is None:
+        return
+
+    class_name = getattr(transformer, "__class__", None).__name__ if hasattr(transformer, "__class__") else ""
+    if "SimpleImputer" in class_name:
+        fit_dtype = getattr(transformer, "_fit_dtype", None)
+        stats = getattr(transformer, "statistics_", None)
+        default_dtype = stats.dtype if stats is not None and hasattr(stats, "dtype") else None
+
+        if not hasattr(transformer, "_fill_dtype"):
+            setattr(transformer, "_fill_dtype", fit_dtype if fit_dtype is not None else default_dtype)
+        if not hasattr(transformer, "_fit_dtype"):
+            fill_dtype = getattr(transformer, "_fill_dtype", None)
+            setattr(transformer, "_fit_dtype", fill_dtype if fill_dtype is not None else default_dtype)
+
+    # Recurse through ColumnTransformer
+    if hasattr(transformer, "transformers_"):
+        for item in transformer.transformers_:
+            if isinstance(item, (tuple, list)) and len(item) >= 2:
+                _patch_transformer_compatibility(item[1])
+
+    # Recurse through Pipeline
+    if hasattr(transformer, "named_steps"):
+        for step in transformer.named_steps.values():
+            _patch_transformer_compatibility(step)
+    elif hasattr(transformer, "steps"):
+        for step_tuple in transformer.steps:
+            if isinstance(step_tuple, (tuple, list)) and len(step_tuple) >= 2:
+                _patch_transformer_compatibility(step_tuple[1])
+
 def load_artifacts() -> Tuple[Any, Any, Dict[str, Any]]:
     """
     Load preprocessor, XGBoost model, and metadata from disk.
@@ -56,6 +92,7 @@ def load_artifacts() -> Tuple[Any, Any, Dict[str, Any]]:
 
     logger.info("Loading fitted tree preprocessor from %s", preprocessor_path)
     _preprocessor = joblib.load(preprocessor_path)
+    _patch_transformer_compatibility(_preprocessor)
 
     # 3. Load XGBoost Model
     joblib_model_path = artifacts_path / "best_xgboost_model.joblib"
