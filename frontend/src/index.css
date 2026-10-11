@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-size: 17.5px; /* Scales all rem typography up proportionally (~10%) for enhanced readability */
+  }
+  body {
+    @apply bg-charcoal-900 text-slate-100 font-sans antialiased min-h-screen;
+    background-color: #0b0f17;
+  }
+}
+
+/* Custom sleek scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #101622;
+}
+::-webkit-scrollbar-thumb {
+  background: #222d42;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2d3b55;
+}
