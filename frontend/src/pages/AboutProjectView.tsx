@@ -129,7 +129,7 @@ export const AboutProjectView: React.FC = () => {
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-charcoal-900 p-4 rounded-lg border border-charcoal-700">
-            <span className="text-xs text-tealAccent-400 font-mono font-bold block">Member 1</span>
+            <span className="text-tealAccent-400 font-mono font-bold block">Member 1</span>
             <div className="font-semibold text-white mt-0.5">Rathnayake S.N.S.</div>
             <div className="text-xs text-slate-400 mt-1">Data Understanding, Exploratory Data Analysis & Logistic Regression</div>
           </div>
