@@ -22,7 +22,7 @@ export const AboutProjectView: React.FC = () => {
           <div>
             <h2 className="text-xl font-bold text-white">Project Overview & Background</h2>
             <p className="text-xs text-slate-400">
-              IT3091 Machine Learning University Project · Academic Year 2026 · Group 2026-DS-61
+              IT3091 Machine Learning Assignment · Academic Year 2026 · Group 2026-DS-61
             </p>
           </div>
         </div>
